@@ -2,4 +2,4 @@
 Container Networking at the Edge with Kuryr
 ===========================================
 
-Slides from the upcoming presentation at OpenStack Summit Denver 2019.
+Slides for the upcoming presentation at Open Infrastructure Summit, Denver 2019.
