@@ -60,6 +60,11 @@ template: agenda_layout
 1. What's Kuryr-Kubernetes?
    * What's CNI?
    * What services it's consisting of?
+2. CRI-O
+   * Container Runtime Interface (CRI)
+   * Why CRI-O?
+   * Podman
+3. Integration with Kuryr demo
 ---
 
 template: section_layout
@@ -216,6 +221,92 @@ What's Kuryr-Kubernetes?
 * IRC channel: [#openstack-kuryr@Freenode](irc://chat.freenode.net/openstack-kuryr)
 * Bugs: https://bugs.launchpad.net/kuryr-kubernetes
 * How to contribute: https://wiki.openstack.org/wiki/How_To_Contribute
+
+---
+
+template: section_layout
+
+CRI-O
+
+---
+# CRI-O
+
+.center[.seventy[![Insert graphic here](assets/criologo.svg)]]
+
+---
+
+# CRI-O
+
+## What's CRI-O?
+
+* More  ways to run containers than just the docker tool.
+  * runc, rkt, frakti, cri-containerd and more.
+  * Follow the OCI standard defining how the runtimes start and run containers
+  * Lack a standard way of interfacing with an orchestrator
+--
+
+* Standard API to be able to talk to and manage a container runtime.
+  * This API is called the **Container Runtime Interface (CRI)**
+--
+
+* Since 2018 CRI-O is an official part of the Kubernetes family of tools.
+
+---
+
+# CRI-O
+
+## Why CRI-O?
+
+* **Open Source Project**
+  * Contributors from several companies, such as Red Hat, SUSE, Intel, Google, IBM...
+--
+
+* **Secure**
+  * In Docker, every container is a ‘child’ of the large Docker Daemon
+--
+
+  * CRI-O containers are children of the process that spawned it
+--
+
+* **Lightweight**
+--
+
+* **Official Kubernetes Project**
+
+---
+
+# CRI-O
+
+## Podman and Buildah
+
+#.left-column[![Insert graphic here](assets/podman.svg)]
+
+--
+
+#.right-column[![Insert graphic here](assets/buildah.png)]
+
+---
+
+# CRI-O
+
+## Podman and Buildah
+
+* **Buildah**
+  * Allows you to have a Kubernetes cluster without any Docker daemon for both runtime and builds
+  * Specializes in building OCI images
+  * Buildah’s commands replicate all of the commands that are found in a Dockerfile
+--
+
+* **Podman**
+  * Podman specializes in all of the commands and functions to maintain and modify those OCI container images
+  * Uses Buildah’s build functionality under the covers to create a container image
+  * You can just alias podman for docker on your machine
+
+---
+
+template: section_layout
+
+Demo - Kuryr with CRI-O
 
 ---
 
