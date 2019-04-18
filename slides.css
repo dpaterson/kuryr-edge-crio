@@ -2,7 +2,7 @@
  * Basic defaults
  *****************************************************************************/
 body {
-    font-family: 'Montserrat', Sans;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: 0.7px;
 }
 .remark-slide {
@@ -137,7 +137,7 @@ body {
 }
 .content_slide h1 {
     font-weight: lighter;
-    font-size: 41.4px;
+    font-size: 30px;
     letter-spacing: 1.1px;
     margin-bottom: 8px;
 }
@@ -280,6 +280,19 @@ table tbody tr:nth-child(even) {
     background-color: white;
     color: #4C4C4C;
 }
+
+.no-padding tbody tr td, .no-padding tbody tr{
+  padding:0;
+  margin:0;
+  background: none !important;
+  border: none !important;
+}
+
+video {
+  display: block;
+  margin: 0 auto;
+}
+
 .blue-table table thead tr {
     background-color: #004153;
 }
@@ -377,8 +390,20 @@ table tbody tr:nth-child(even) {
     width: 100%;
 }
 
+.thrity img {
+    width: 30%;
+}
+
+.fourty img {
+    width: 40%;
+}
+
 .half img {
-    width: 60%
+    width: 50%
+}
+
+.whole img {
+    width: 100%
 }
 
 .sixty img {
@@ -390,7 +415,11 @@ table tbody tr:nth-child(even) {
 }
 
 .eighty img {
-    width: 85%;
+    width: 80%;
+}
+
+.ninety img {
+    width: 90%;
 }
 
 .diag .left-column img {
