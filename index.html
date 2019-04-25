@@ -51,13 +51,311 @@ Daniel Mellado - Senior Software Engineer - Red Hat<br>
 Open Infrastructure Summit Denver, 1.5.2019<br>
 
 ---
+template: section_layout
 
-template: agenda_layout
+Overview
 
-# Agenda
+---
+
+# Overview
+
+The focus of our work is a forward thinking conceptual architecture
+for deploying containerized workloads at the edge leveraging OpenStack IaaS.
+
+## What we'll cover:
+1. Physical environemt
+2. Distributed compute nodes
+3. Simulated network impairment
+4. Demos: workload on edge node + impairment
+5. Kuryr overview
+6. CRI-O overview
+7. Looking forward: Kuryr integration and bare metal at the edge
+8. Closing remarks and Q&A
+
+---
+# Motivation
+
+* Supporting workloads at the edge is becoming mission critical:
+
+--
+ * Lower latency
+
+--
+ * Reduction of backhaul
+
+--
+ * 5G, MEC, and IoT have many usecases where proximity is clutch
+
+--
+* Containers, in particular K8S currently, is the prefered model for deploying
+and managing cloud native applications.
+
+--
+* Kuryr - A  Container Networking Interface (CNI) plugin that enables containers
+to utilize the Neutron networking abstraction.
+ * Seperates concerns, OpenStack provides physical hardware abstraction (IaaS)
+and K8S is concerned with micro service orchestration.
+ * Ideally K8S is just a workload in terms of infrastructure and should be
+ managed like any other workload in OpenStack.
+  Double ideally - we don't really care if K8S is running in VMs or on bare-
+  metal instances.
+
+---
+# Phased Implementation Strategy
+
+1. Rack & stack hardware and configure physical networking
+2. Deploy typical 9 node cluster representing CDC
+3. Configure network impairment node
+4. Discover and provision remote compute nodes
+5. Instantiate instance running simple workload on remote compute.
+6. Network impairment testing
+7. Kuryr integration at edge site
+8. Deploy Ironic at edge site to support bare metal instances
+9. Close the loop, make it all work together
+
+We are currently working on 7 & 8
+
+---
+template: section_layout
+
+Openstack Activity on the Edge
+
+---
+# State of OpenStack's support for the edge
+There's a lot of activity and also a long way to go:
+
+* OpenStack's support for the edge (near, middle, far, fog ...) is still in a
+relatively early stage.
+
+--
+* The OpenStack Edge Working Group is doing good work defining use cases and
+MVP architectures
+
+<table class="no-padding">
+<tr><td>
+  .center[.ninety[![Prototype Topology](
+  assets/1200px-Large_Scale_Centralized_Control.png)]]
+</td><td>
+  .center[.ninety[![Prototype Topology](
+  assets/800px-Centralized_Control.png)]]
+</td></tr>
+</table>
+
+---
+Openstack, Linux Foundation, and other edge related projects
+* There are many nascent satalite projects addressing requirements needed for
+OpenStack to support the edge
+
+--
+ * StarlingX
+ * Akraino
+ * Airship
+ * OPNFV
+ * LF EDGE umbrella project
+ * ONAP
+ * Next week there will be more!
+
+---
+# Why it's good?
+* The demand for IaaS at the edge is really good for OpenStack
+* There is a lot of momentum around edge in the open source community
+* These projects are driving OpenStack to be ahead of the curve
+
+---
+# Why it's bad?
+* Confusion! It's difficult to track what project is doing what...
+* Having many projects with overlapping/redundant concerns makes adoption
+difficult
+* Fragmentation and duplication of efforts, 15 code bases instead of 1
+
+---
+template: section_layout
+
+So what can we do right now?
+
+---
+# What can we do with OpenStack at the edge right now?
+
+OpenStack already has features we can utilize to:
+* Provision edge compute nodes
+* Deploy workloads at the edge
+
+---
+# Provisioning compute nodes to edge site
+
+.center[.sixty[![Provisioning Edge Compute Nodes](
+assets/edge_provisioning_diagram.png)]]
+
+---
+# Deploy a workload to edge compute site
+
+Leverage existing features:
+* Nova Host Aggregates and Availability Zones (AZ)
+* Roles, flavors and supporting metadata.
+* Neutron/OVS composible networks
+
+```
+$ openstack aggregate list
++----+----------+-------------------+
+| ID | Name     | Availability Zone |
++----+----------+-------------------+
+|  2 | betty-ag | betty             |
+|  5 | al-ag    | al                |
++----+----------+-------------------+
+$ openstack aggregate show al-ag
++-------------------+-------------------------------------------+
+| Field             | Value                                     |
++-------------------+-------------------------------------------+
+| availability_zone | al                                        |                                  |
+| hosts             | [u'r196-dell-edge-compute-0.localdomain'] |
+| id                | 5                                         |
+| name              | al-ag                                     |
++-------------------+-------------------------------------------+
+```
+
+---
+## Create an instance on edge node by specifying AZ
+
+```
+$ openstack server create --image centos --availability-zone al edge_centos_1
++-------------------------------------+------------------------------------+
+| Field                               | Value                              |
++-------------------------------------+------------------------------------+
+| OS-DCF:diskConfig                   | MANUAL                             |
+| OS-EXT-AZ:availability_zone         | al                                 |
+| OS-EXT-SRV-ATTR:host                | edge-compute-0.localdomain         |
+| OS-EXT-SRV-ATTR:hypervisor_hostname | edge-compute-0.localdomain         |
+| addresses                           | edge-provider=10.30.1.18;          |
+|                                     | edge-internet=10.40.1.16           |
+| flavor                              | grape (99498278-10af-4f05-937)     |
+| hostId                              | 23b36a6630a2c00190ea3915fcf95      |
+| id                                  | 66c185b8-3556-4fe0-8d42-6          |
+| image                               | centos (bf484078-1f71-4ba3-8e58-5) |
+| name                                | edge_centos_1                      |
+| progress                            | 0                                  |
+| status                              | ACTIVE                             |
++-------------------------------------+------------------------------------+
+```
+---
+# Workloads running in compute nodes at edge - where we are now
+
+.center[.sixty[![Prototype Topology](
+assets/dcn_vm_workload_snippet.png)]]
+
+---
+# Workloads running in bare-metal instances - where we are headed
+.center[.eighty[![Prototype Topology](
+assets/dcn_bm_workload_snippet.png)]]
+
+Ideally we'll be able to run K8S on on bare-metal instances, with the Kuryr CNI
+plugin providing conatiner networking through Neutron.
+
+---
+template: section_layout
+
+Limitations
+
+---
+# Limitations for remote compute nodes
+
+* Control plane communication latency
+
+--
+ * Bad things start happening when round-trip time (RTT) exceeds 100ms
+
+--
+* Compute and networking only explored thus far
+ * Ephemeral storage only
+
+--
+* If the link to the control plane goes down workloads will continue to run but
+that's about it until connectivity to control plan is restored
+
+---
+template: section_layout
+
+Network Considerations
+
+---
+# Approach to Networking
+While there are many permutations of how networking a remote compute site, the
+following patterns seem to make the most sense:
+* Use L3 vs L2 where possible
+* Spine-leaf network layout makes good sense
+* Workloads should use a provider network that is only utilized by the remote
+compute site
+* Don't rely on CDC for workload DHCP, instead:
+  * User config_data model for injecting addresses into instances during
+  instance boot time (cloud-init)
+  * Use site-local DHCP
+* Prototyping in a single lab requires some kind of network impairment testing
+in order to gauge real-world performace.
+* Provisioning remote compute nodes over L3 works, cool!
+
+---
+## Prototype Current Network Topology
+.center[.sixty[![Prototype Topology](
+assets/Edge_Logical_Network_Diagram.png)]]
+
+---
+# Spine & Leaf
+
+* Spine & leaf topologies can be very powerful, leveraging OpenStack's:
+ * Composible networks
+ * Composible roles
+
+.center[.half[![Spine & Leaf](
+assets/spine_and_leaf.png)]]
+
+---
+template: section_layout
+
+Network Impairment
+
+---
+# Simulated Network Impairment
+To simulate real world latency between the control plane and remote compute
+site some kind of simulated network impairment is needed.
+
+* Ideally all L3 traffic goes through impairment device
+* If you are doing any L2 networking (VLAN) testing may have to happen
+directly on controller nodes
+* Pretty simple to implement
+ * Routing
+ * Simple bash scripts that control latency
+
+---
+# Impairment Diagram
+
+.center[.half[![Network Impairment](
+assets/Impairment.png)]]
+
+---
+# Impairment Demo
+
+<video width="850" controls>
+    <source src="assets/network_impairment.mp4" type="video/mp4">
+</video>
+
+
+---
+# Sample Edge Workload Demo
+
+<video width="700" controls>
+    <source src="assets/cache_demo.mp4" type="video/mp4">
+</video>
+
+
+---
+template: section_layout
+
+Kuryr, Kuryr-Kubernetes & CRI-O
+
+---
+#Kuryr, Kuryr-Kubernetes & CRI-O
 --
 
-1. What's Kuryr-Kubernetes?
+1. What's Kuryr & Kuryr-Kubernetes?
    * What's CNI?
    * What services it's consisting of?
 2. CRI-O
@@ -69,10 +367,10 @@ template: agenda_layout
 
 template: section_layout
 
-What's Kuryr-Kubernetes?
+Kuryr & Kuryr-Kubernetes
 
 ---
-# Kuryr-Kubernetes
+# Kuryr & Kuryr-Kubernetes
 
 ## Logos or mascots
 
@@ -96,7 +394,7 @@ What's Kuryr-Kubernetes?
 * Written in Python, *kuryr-kubernetes* on Python Package Index.
 --
 
-* Developers from Red Hat, Huawei, Intel, Samsung…
+* Developers from Red Hat, Huawei, Intel, Samsung...
 --
 
 * Out of experimental phase in **OpenStack Queens release** with version **0.4.3**.
@@ -262,7 +560,7 @@ CRI-O
 --
 
 * **Secure**
-  * In Docker, every container is a ‘child’ of the large Docker Daemon
+  * In Docker, every container is a 'child' of the large Docker Daemon
 --
 
   * CRI-O containers are children of the process that spawned it
@@ -294,12 +592,12 @@ CRI-O
 * **Buildah**
   * Allows you to have a Kubernetes cluster without any Docker daemon for both runtime and builds
   * Specializes in building OCI images
-  * Buildah’s commands replicate all of the commands that are found in a Dockerfile
+  * Buildah's commands replicate all of the commands that are found in a Dockerfile
 --
 
 * **Podman**
   * Podman specializes in all of the commands and functions to maintain and modify those OCI container images
-  * Uses Buildah’s build functionality under the covers to create a container image
+  * Uses Buildah's build functionality under the covers to create a container image
   * You can just alias podman for docker on your machine
 
 ---
@@ -320,6 +618,19 @@ http://creativecommons.org/licenses/by/4.0/
 ]
 
 ---
+template: section_layout
+
+Next Steps
+
+---
+# Next steps
+
+* Complete Kuryr integration at edge
+ * Octavia is currently a Kuryr requirment
+   * Octavia is a heavy lift for DCN, alternatives?
+* Deploy Ironic at edge to support bare metal instances for hosting K8S
+* Completion around Train/Shanghai time frame
+---
 
 template: thank_you
 
@@ -327,12 +638,23 @@ template: thank_you
 
 ## Thank you!
 
-**Slides can be found at:**
-
 **Daniel Mellado**
+![email](assets/email.png)
+[dmellado@redhat.com](mailto:dmellado@redhat.com)
+![irc](assets/irc.png)
+[dmellado (freenode)](irc://chat.freenode.net/dmellado,isnick)
 
-![email](assets/email.png)   [dmellado@redhat.com](mailto:dmellado@redhat.com)
-![irc](assets/irc.png)   [dmellado (freenode)](irc://chat.freenode.net/dmellado,isnick)
+**Mark Beierl**
+![email](assets/email.png)
+[mbeierl@vmware.com](mailto:mbeierl@vmware.com)
+![irc](assets/irc.png)
+[mbeierl (freenode)](irc://chat.freenode.net/mbeierl,isnick)
+
+**David Paterson**
+![email](assets/email.png)
+[david.paterson@dell.com](mailto:david.paterson@dell.com)
+![irc](assets/irc.png)
+[dpaterson (freenode)](irc://chat.freenode.net/dpaterson,isnick)
 
 
     </textarea>
@@ -340,7 +662,7 @@ template: thank_you
     <script type="text/javascript">
       var slideshow = remark.create({
         ratio: '16:9',
-        slideNumberFormat: '%current%   <span class="designator">Container Networking at the Edge with Kuryr · May  2019 · Open Infrastructure Summit Denver</span>',
+        slideNumberFormat: '%current%   <span class="designator">Container Networking at the Edge with Kuryr � May  2019 � Open Infrastructure Summit Denver</span>',
         countIncrementalSlides: false
       });
     </script>
