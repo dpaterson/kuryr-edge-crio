@@ -2,7 +2,7 @@
  * Basic defaults
  *****************************************************************************/
 body {
-    font-family: 'Montserrat', Sans;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: 0.7px;
 }
 .remark-slide {
@@ -285,7 +285,7 @@ table tbody tr:nth-child(even) {
   padding:0;
   margin:0;
   background: none !important;
-  border: none !important; 
+  border: none !important;
 }
 
 video {
