@@ -267,7 +267,7 @@ $ openstack server create --image centos --availability-zone al edge_centos_1
 ---
 # Workloads running in compute nodes at edge - where we are now
 
-# 
+#
 
 .center[.full[![Prototype Topology](
 assets/dcn_vm_workload_with_ref_arch.png)]]
@@ -386,40 +386,6 @@ Kuryr & Kuryr-Kubernetes
   for Kubernetes Pods networking.
 * Provide kube-proxy equivalent that will use OpenStack Octavia for Kubernetes
   Services loadbalancing and Ingress implementation.
-
----
-
-# Kubernetes and CNI
-
-## Container Network Interface
-
-* Project governed by CNCF (*Cloud Native Computing Foundation*).
-* API is based on net.d configuration, executables and environment variables:
-  * CNI plugins are configured in net.d directory (default `/etc/cni/net.d`)
-    by config files. CNI starts looking from first file lexicographically, e.g.
-    `10-kuryr.conf`.
-  * CNI plugins are executables that should be run with parameters in env vars.
-     - `CNI_COMMAND` - either `ADD`, `DEL` or `VERSION`.
-     - `CNI_CONTAINERID` - unique container ID, key when storing state.
-     - `CNI_NETNS` - network namespace that interface should be placed in.
-     - `CNI_IFNAME` - requested name of the interface in the `CNI_NETNS`.
-
----
-
-# Kubernetes and CNI
-
-## Container Network Interface
-
-* Project governed by CNCF (*Cloud Native Computing Foundation*).
-* API is based on net.d configuration, executables and environment variables:
-  * CNI plugins are configured in net.d directory (default `/etc/cni/net.d`)
-    by config files. CNI starts looking from first file lexicographically, e.g.
-    `10-kuryr.conf`.
-  * **CNI plugins are executables that should be run with parameters in env vars.**
-     - `CNI_COMMAND` - either `ADD`, `DEL` or `VERSION`.
-     - `CNI_CONTAINERID` - unique container ID, key when storing state.
-     - `CNI_NETNS` - network namespace that interface should be placed in.
-     - `CNI_IFNAME` - requested name of the interface in the `CNI_NETNS`.
 
 ---
 
