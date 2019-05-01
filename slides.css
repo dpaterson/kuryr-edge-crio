@@ -51,7 +51,7 @@ body {
     background-color: #A30000;
     background-size:  195px, 195px, 100%;
     background-image: url("assets/Dell_EMC_logo.svg"),
-                      url("assets/redhat_logo_reverse.svg"),
+                      url("assets/redhat_new_logo.svg"),
                       url("assets/os_background.png");
     background-position: 175px 220px, 775px 200px, 0% 0%;
 }
