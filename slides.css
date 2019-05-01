@@ -418,6 +418,10 @@ video {
     width: 90%;
 }
 
+.full img {
+    width: 100%;
+}
+
 .diag .left-column img {
     position: absolute;
     bottom: 80px;

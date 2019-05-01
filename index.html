@@ -107,13 +107,13 @@ and K8S is concerned with micro service orchestration.
 2. Deploy typical 9 node cluster representing CDC
 3. Configure network impairment node
 4. Discover and provision remote compute nodes
-5. Instantiate instance running simple workload on remote compute.
+5. Instantiate instance running simple workload on remote compute
 6. Network impairment testing
 7. Kuryr integration at edge site
 8. Deploy Ironic at edge site to support bare metal instances
 9. Close the loop, make it all work together
 
-We are currently working on 7 & 8
+We are currently working on 7 - 9
 
 ---
 template: section_layout
@@ -140,6 +140,14 @@ MVP architectures
   assets/800px-Centralized_Control.png)]]
 </td></tr>
 </table>
+
+---
+Our prototype closely resembles the OSF Edge Computing Workgroup's Centralized
+Control Plane MVP architecture, sans Cinder
+
+.center[.half[![Centralized Control Plane](
+assets/800px-Centralized_Control_Strike_Cinder.png)]]
+
 
 ---
 Openstack, Linux Foundation, and other edge related projects
@@ -179,6 +187,26 @@ So what can we do right now?
 OpenStack already has features we can utilize to:
 * Provision edge compute nodes
 * Deploy workloads at the edge
+
+---
+# Approach to Networking
+While there are many permutations of how networking a remote compute site, the
+following patterns seem to make the most sense:
+* Use L3 vs L2 where possible
+* Workloads should use a provider network that is only utilized by the remote
+compute site
+* Don't rely on CDC for workload DHCP, instead:
+  * User config_data model for injecting addresses into instances during
+  instance boot time (cloud-init)
+  * Use site-local DHCP
+* Prototyping in a single lab requires some kind of network impairment testing
+in order to gauge real-world performace.
+* Provisioning remote compute nodes over L3 works, cool!
+
+---
+## Prototype Current Network Topology
+.center[.seventy[![Prototype Topology](
+assets/topology.png)]]
 
 ---
 # Provisioning compute nodes to edge site
@@ -239,8 +267,10 @@ $ openstack server create --image centos --availability-zone al edge_centos_1
 ---
 # Workloads running in compute nodes at edge - where we are now
 
-.center[.sixty[![Prototype Topology](
-assets/dcn_vm_workload_snippet.png)]]
+#
+
+.center[.full[![Prototype Topology](
+assets/dcn_vm_workload_with_ref_arch.png)]]
 
 ---
 # Workloads running in bare-metal instances - where we are headed
@@ -270,42 +300,6 @@ Limitations
 --
 * If the link to the control plane goes down workloads will continue to run but
 that's about it until connectivity to control plan is restored
-
----
-template: section_layout
-
-Network Considerations
-
----
-# Approach to Networking
-While there are many permutations of how networking a remote compute site, the
-following patterns seem to make the most sense:
-* Use L3 vs L2 where possible
-* Spine-leaf network layout makes good sense
-* Workloads should use a provider network that is only utilized by the remote
-compute site
-* Don't rely on CDC for workload DHCP, instead:
-  * User config_data model for injecting addresses into instances during
-  instance boot time (cloud-init)
-  * Use site-local DHCP
-* Prototyping in a single lab requires some kind of network impairment testing
-in order to gauge real-world performace.
-* Provisioning remote compute nodes over L3 works, cool!
-
----
-## Prototype Current Network Topology
-.center[.sixty[![Prototype Topology](
-assets/Edge_Logical_Network_Diagram.png)]]
-
----
-# Spine & Leaf
-
-* Spine & leaf topologies can be very powerful, leveraging OpenStack's:
- * Composible networks
- * Composible roles
-
-.center[.half[![Spine & Leaf](
-assets/spine_and_leaf.png)]]
 
 ---
 template: section_layout
