@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>
-        Container Networking at the Edge with Kuryr
+        OpenStack at the Edge - Distributed Compute Nodes (DCN)
     </title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="slides.css"></link>
@@ -42,13 +42,11 @@ class: content_slide
 
 template: title_layout
 
-# Container Networking at the Edge with Kuryr
+# OpenStack at the Edge - Distributed Compute Nodes
 
 David Paterson - Sr. Principal Software Engineer - Dell EMC<br>
-Mark Beierl - Telco Innovation Staff Solution Architect - VMware<br>
-Daniel Mellado - Senior Software Engineer - Red Hat<br>
 <br>
-Open Infrastructure Summit Denver, 1.5.2019<br>
+Red Hat Summit, Boston MA, 5.8.2019<br>
 
 ---
 template: section_layout
@@ -59,18 +57,16 @@ Overview
 
 # Overview
 
-The focus of our work is a forward thinking conceptual architecture
-for deploying containerized workloads at the edge leveraging OpenStack IaaS.
+As of Red Hat OpenStack 13, deploying edge compute node sites is fully
+supported.
 
 ## What we'll cover:
 1. Physical environment
 2. Distributed compute nodes
 3. Simulated network impairment
 4. Network Topology
-5. Kuryr overview
-6. CRI-O overview
-7. Looking forward: Kuryr integration and bare metal at the edge
-8. Closing remarks and Q&A
+5. Looking forward: Bare metal at the edge
+6. Closing remarks and Q&A
 
 ---
 # Motivation
@@ -86,20 +82,6 @@ for deploying containerized workloads at the edge leveraging OpenStack IaaS.
 --
  * 5G, MEC, and IoT have many usecases where proximity is clutch
 
---
-* Containers, in particular K8S currently, is the prefered model for deploying
-and managing cloud native applications.
-
---
-* Kuryr - Has a Container Networking Interface (CNI) plugin that enables containers
-to utilize the Neutron networking abstraction.
- * Seperates concerns, OpenStack provides physical hardware abstraction (IaaS)
-and K8S is concerned with micro service orchestration.
- * Ideally K8S is just a workload in terms of infrastructure and should be
- managed like any other workload in OpenStack.
-  Double ideally - we don't really care if K8S is running in VMs or on bare-
-  metal instances.
-
 ---
 # Phased Implementation Strategy
 
@@ -109,16 +91,15 @@ and K8S is concerned with micro service orchestration.
 4. Discover and provision remote compute nodes
 5. Instantiate instance running simple workload on remote compute
 6. Network impairment testing
-7. Kuryr integration at edge site
-8. Deploy Ironic at edge site to support bare metal instances
-9. Close the loop, make it all work together
+7. Deploy Ironic at edge site to support bare metal instances
+8. Close the loop, make it all work together
 
-We are currently working on 7 - 9
+We are currently working on 7 - 8
 
 ---
 template: section_layout
 
-Openstack Activity on the Edge
+Edge Focused Upstream Openstack Activity
 
 ---
 # State of OpenStack's support for the edge
@@ -185,13 +166,13 @@ So what can we do right now?
 # What can we do with OpenStack at the edge right now?
 
 OpenStack already has features we can utilize to:
-* Provision edge compute nodes
+* Provision edge compute node sites
 * Deploy workloads at the edge
 
 ---
 # Approach to Networking
-While there are many permutations of how networking a remote compute site, the
-following patterns seem to make the most sense:
+While there are many permutations of how networking a remote compute site can
+be implemented, the following patterns seem to make the most sense:
 * Use L3 vs L2 where possible
 * Workloads should use a provider network that is only utilized by the remote
 compute site
@@ -277,8 +258,7 @@ assets/dcn_vm_workload_with_ref_arch.png)]]
 .center[.eighty[![Prototype Topology](
 assets/dcn_bm_workload_snippet.png)]]
 
-Ideally we'll be able to run K8S on on bare-metal instances, with the Kuryr CNI
-plugin providing container networking through Neutron.
+Ideally we'll be able to run K8S on on bare-metal instances at edge sites.
 
 ---
 template: section_layout
@@ -327,243 +307,15 @@ assets/Impairment.png)]]
 ---
 template: section_layout
 
-Kuryr, Kuryr-Kubernetes & CRI-O
-
----
-#Kuryr, Kuryr-Kubernetes & CRI-O
---
-
-1. What's Kuryr & Kuryr-Kubernetes?
-   * What's CNI?
-   * What services it's consisting of?
-2. CRI-O
-   * Container Runtime Interface (CRI)
-   * Why CRI-O?
-   * Podman
-3. Integration with Kuryr demo
----
-
-template: section_layout
-
-Kuryr & Kuryr-Kubernetes
-
----
-# Kuryr & Kuryr-Kubernetes
-
-## Logos or mascots
-
-
-#.left-column[![Insert graphic here](assets/kuryr-logo.png)]
-
---
-
-#.right-column[.center[.half[![Insert graphic here](assets/kuryr-logo2.png)]]]
-
----
-
-# Kuryr-Kubernetes
-
-## Primer
-
-* Kuryr-Kubernetes is part of OpenStack Kuryr project.
---
-
-* Repo: https://git.openstack.org/openstack/kuryr-kubernetes
-* Written in Python, *kuryr-kubernetes* on Python Package Index.
---
-
-* Developers from Red Hat, Huawei, Intel, Samsung...
---
-
-* Out of experimental phase in **OpenStack Queens release** with version **0.4.3**.
-* Follows **cycle-with-intermediary** release model.
-
---
-
-## Goals
-
-* Provide a Container Network Interface plugin that will use OpenStack Neutron
-  for Kubernetes Pods networking.
-* Provide kube-proxy equivalent that will use OpenStack Octavia for Kubernetes
-  Services loadbalancing and Ingress implementation.
-
----
-
-# Kuryr-Kubernetes
-
-## Motivations
-
---
-* Harness the power of OpenStack Neutron for your Kubernetes cluster!
-
---
-
-.center[.seventy[![Insert graphic here](assets/neutron-meme.jpg)]]
----
-
-# Kuryr-Kubernetes
-
-## Motivations
-
-* ~~Harness the power of OpenStack Neutron for your Kubernetes cluster!~~
---
-
-* Use some of Neutron functionalities for Pods networking.
---
-
-* Provide **interconnectivity** between OpenStack VMs and Kubernetes Pods and
-  Services.
-  * Pod->VM, VM->Pod
-  * VM->Services
---
-
-* Avoiding having multiple network overlays in **Kubernetes on OpenStack**
-  deployments.
-
----
-
-# Kuryr-Kubernetes
-
-## Multiple-Overlays
-
-.center[.seventy[![Insert graphic here](assets/multiple-overlays.svg)]]
-
----
-
-# Kuryr-Kubernetes
-
-## Kuryr components
-
---
-* kuryr-controller
-  * Responsible for OpenStack API operations.
-  * Watches Kubernetes resources (through K8s API) and reacts to events by CRUD
-  on OpenStack resources.
-  * Passes information about OpenStack resources through annotations on K8s
-  resources.
-
---
-* kuryr-daemon
-  * Running on every K8s node.
-  * Watches for new pods on the node and wires them when requested by
-  kuryr-cni.
-
---
-* kuryr-cni
-  * Executed by CNI.
-  * Passes CNI requests to kuryr-daemon.
-
----
-
-# Kuryr-Kubernetes
-
-## How to use, how to contribute
-
-* Documentation: https://docs.openstack.org/kuryr-kubernetes/latest
-* IRC channel: [#openstack-kuryr@Freenode](irc://chat.freenode.net/openstack-kuryr)
-* Bugs: https://bugs.launchpad.net/kuryr-kubernetes
-* How to contribute: https://wiki.openstack.org/wiki/How_To_Contribute
-
----
-
-template: section_layout
-
-CRI-O
-
----
-# CRI-O
-
-.center[.seventy[![Insert graphic here](assets/criologo.svg)]]
-
----
-
-# CRI-O
-
-## What's CRI-O?
-
-* More  ways to run containers than just the docker tool.
-  * runc, rkt, frakti, cri-containerd and more.
-  * Follow the OCI standard defining how the runtimes start and run containers
-  * Lack a standard way of interfacing with an orchestrator
---
-
-* Standard API to be able to talk to and manage a container runtime.
-  * This API is called the **Container Runtime Interface (CRI)**
---
-
-* Since 2018 CRI-O is an official part of the Kubernetes family of tools.
-
----
-
-# CRI-O
-
-## Why CRI-O?
-
-* **Open Source Project**
-  * Contributors from several companies, such as Red Hat, SUSE, Intel, Google, IBM...
---
-
-* **Secure**
-  * In Docker, every container is a 'child' of the large Docker Daemon
---
-
-  * CRI-O containers are children of the process that spawned it
---
-
-* **Lightweight**
---
-
-* **Official Kubernetes Project**
-
----
-
-# CRI-O
-
-## Podman and Buildah
-
-#.left-column[![Insert graphic here](assets/podman.svg)]
-
---
-
-#.right-column[![Insert graphic here](assets/buildah.png)]
-
----
-
-# CRI-O
-
-## Podman and Buildah
-
-* **Buildah**
-  * Allows you to have a Kubernetes cluster without any Docker daemon for both runtime and builds
-  * Specializes in building OCI images
-  * Buildah's commands replicate all of the commands that are found in a Dockerfile
---
-
-* **Podman**
-  * Podman specializes in all of the commands and functions to maintain and modify those OCI container images
-  * Uses Buildah's build functionality under the covers to create a container image
-  * You can just alias podman for docker on your machine
-
----
-
-template: section_layout
-
-Demo - Kuryr with CRI-O
-
----
-template: section_layout
-
 Next Steps
 
 ---
 # Next steps
 
-* Complete Kuryr integration at edge
- * Octavia is currently a Kuryr requirement
-   * Octavia is a heavy lift for DCN, alternatives?
 * Deploy Ironic at edge to support bare metal instances for hosting K8S
 * Use config-data for edge instances, VMs and BM
  * Allows for IP injection etc
+* Deploy OpenShift on bare metal instances at edge site.
 * Completion around Train/Shanghai time frame
 ---
 
@@ -572,18 +324,6 @@ template: thank_you
 # Q&A
 
 ## Thank you!
-
-**Daniel Mellado**
-![email](assets/email.png)
-[dmellado@redhat.com](mailto:dmellado@redhat.com)
-![irc](assets/irc.png)
-[dmellado (freenode)](irc://chat.freenode.net/dmellado,isnick)
-
-**Mark Beierl**
-![email](assets/email.png)
-[mbeierl@vmware.com](mailto:mbeierl@vmware.com)
-![irc](assets/irc.png)
-[mbeierl (freenode)](irc://chat.freenode.net/mbeierl,isnick)
 
 **David Paterson**
 ![email](assets/email.png)
@@ -597,7 +337,7 @@ template: thank_you
     <script type="text/javascript">
       var slideshow = remark.create({
         ratio: '16:9',
-        slideNumberFormat: '%current%   <span class="designator">Container Networking at the Edge with Kuryr · May  2019 · Open Infrastructure Summit Denver</span>',
+        slideNumberFormat: '%current%  <span class="designator">OpenStack at the Edge - Distributed Compute Nodes (DCN) · May  2019 · Red Hat Summit</span>',
         countIncrementalSlides: false
       });
     </script>
